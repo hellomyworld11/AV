@@ -143,7 +143,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="leixiaohua_test\simplest_ffmpeg_decoder.cpp" />
     <ClCompile Include="output_log.cpp" />
     <ClCompile Include="vPlayer_sdl2.cpp" />
   </ItemGroup>
