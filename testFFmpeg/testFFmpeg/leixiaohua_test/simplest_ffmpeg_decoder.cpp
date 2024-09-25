@@ -107,13 +107,20 @@ int main(int argc, char* argv[])
 	img_convert_ctx = sws_getContext(pCodecCtx->width, pCodecCtx->height, pCodecCtx->pix_fmt, 
 		pCodecCtx->width, pCodecCtx->height, AV_PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 
+	FILE* fileyuv = nullptr;
+	fopen_s(&fileyuv, "../res/1.yuv", "wb+");
+	FILE* fileh264 = nullptr;
+	fopen_s(&fileh264, "../res/1.h264", "wb+");
+
 	frame_cnt=0;
 	while(av_read_frame(pFormatCtx, packet)>=0){
 		if(packet->stream_index==videoindex){
-				/*
-				 * 在此处添加输出H264码流的代码
-				 * 取自于packet，使用fwrite()
-				 */
+			/*
+			* 在此处添加输出H264码流的代码
+			* 取自于packet，使用fwrite()
+			*/
+			fwrite(packet->data, 1, packet->size, fileh264);
+
 			ret = avcodec_send_packet(pCodecCtx, packet);
 
 			ret = avcodec_receive_frame(pCodecCtx, pFrame);
@@ -132,8 +139,15 @@ int main(int argc, char* argv[])
 				 * 在此处添加输出YUV的代码
 				 * 取自于pFrameYUV，使用fwrite()
 				 */
-			//	fwrite(byte_buffer, number_of_written_bytes, 1, fp_YUV);
-			//	fflush(fp_YUV);
+				//y 数据
+				fwrite(pFrame->data[0], 1, pCodecCtx->width * pCodecCtx->height, fileyuv);
+				//u 数据 
+				fwrite(pFrame->data[1], 1, pCodecCtx->width * pCodecCtx->height /4, fileyuv);
+				//v 数据
+				fwrite(pFrame->data[2], 1, pCodecCtx->width * pCodecCtx->height /4, fileyuv);
+
+
+				fflush(fileyuv);
 
 
 				frame_cnt++;
@@ -143,6 +157,9 @@ int main(int argc, char* argv[])
 		av_packet_unref(packet);
 //		av_free_packet(packet);
 	}
+
+	fclose(fileyuv);
+	fclose(fileh264);
 
 	sws_freeContext(img_convert_ctx);
 
